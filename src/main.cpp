@@ -1,5 +1,6 @@
-#include "main.h"
+#include "main.hpp"
 #include <ncurses.h>
+#include "piece_table.hpp"
 
 int main() {
     // init screen and sets up screen

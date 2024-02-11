@@ -4,18 +4,14 @@
 #include <iostream>
 
 PieceTable::PieceTable() {
-    static_assert(false, "Not implemented");
+    // static_assert(false, "Not implemented");
+    exit(1);
 }
 
-/**
- * Create a new PieceTable from the given file.
- * 
- * @param file_path The path to the file to read.
- */
 PieceTable::PieceTable(const char* file_path) {
     // Read the file into the original buffer
     std::ifstream file(file_path, std::ios::in);
-    if (!file.is_open()) { std::cerr << "Error opening file\n"; }
+    if (!file.is_open()) { std::cerr << "Error opening file\n"; exit(1); }
     else {
         file.seekg(0, std::ios::end); // check if correct
         auto size = file.tellg();
@@ -24,66 +20,101 @@ PieceTable::PieceTable(const char* file_path) {
         std::cout << size << std::endl;
         file.read(original, size);
         std::cout << original << std::endl;
+
+        nodes.emplace_back(original, size, false);
     }
 
     std::cout << original << std::endl;
     added = (char*) malloc(128);
+    addedSize = 0;
+    addedCapacity = 128;
 }
-PieceTable::PieceTable(const PieceTable& other) {
-    static_assert(false, "Not implemented");
-}
-PieceTable::PieceTable(PieceTable&& other) {
-    static_assert(false, "Not implemented");
-}
+// PieceTable::PieceTable(const PieceTable& other) {
+//     static_assert(false, "Not implemented");
+// }
+// PieceTable::PieceTable(PieceTable&& other) {
+//     static_assert(false, "Not implemented");
+// }
 
-PieceTable& PieceTable::operator=(const PieceTable& other) {
-    static_assert(false, "Not implemented");
-}
-PieceTable& PieceTable::operator=(PieceTable&& other) {
-    static_assert(false, "Not implemented");
-}
+// PieceTable& PieceTable::operator=(const PieceTable& other) {
+//     static_assert(false, "Not implemented");
+// }
+// PieceTable& PieceTable::operator=(PieceTable&& other) {
+//     static_assert(false, "Not implemented");
+// }
 
 PieceTable::~PieceTable() {
-    static_assert(false, "Not implemented");
+    free(original);
+    free(added);
 }
 
-/**
- * Insert a character at the current cursor position. If the cursor is in the 
- * middle of a node, the node should be split into two nodes.
- * 
- * @param c The character to insert.
- */
 void PieceTable::insertChar(char c) {
-    static_assert(false, "Not implemented");
+    // Make the cursor node point to the end of the added string
+    // If the cursor doesn't point to the end of the added string.
+    if (getCursorNode().start + cursor.indexInNode != added + addedSize) {
+        // split the nodes
+        nodes.emplace(nodes.begin() + cursor.indexOfNode + 1,
+                      added + addedSize, 0, true);
+        ++cursor.indexOfNode;
+    }
+    // append to the added string
+    reallocAddedIfNeeded();
+    Node& cursorNode = getCursorNode();
+    added[addedSize] = c;
+    ++addedSize;
+    ++cursorNode.length;
+    ++cursor.indexInNode;
 }
 
-/**
- * Delete the character just before the current cursor position.
- */
 void PieceTable::deleteChar() {
     // If the cursor is at position 0, the cursor should move to the previous
     // node. If the cursor is in the middle of a node, the node should be split
     // into two nodes.
-    static_assert(false, "Not implemented");
+    Node& oldCursorNode = getCursorNode();
+    // If the cursor isn't at the end of a node.
+    if (cursor.indexInNode != oldCursorNode.length) {
+        // split the node
+        nodes.emplace(nodes.begin() + cursor.indexOfNode + 1,
+                      oldCursorNode.start + cursor.indexInNode,
+                      oldCursorNode.length - cursor.indexInNode,
+                      oldCursorNode.isAdded);
+        getCursorNode().length = cursor.indexInNode;
+    }
+    // move the cursor to the previous node, and delete the character
+    Node& cursorNode = getCursorNode();
+    --cursorNode.length;
+    --cursor.indexInNode;
+    if (cursorNode.length == 0) {
+        // remove the node
+        nodes.erase(nodes.begin() + cursor.indexOfNode);
+        --cursor.indexOfNode;
+        cursor.indexInNode = nodes[cursor.indexOfNode].length;
+    }
 }
 
-/**
- * Set the cursor to the given index.
- * 
- * @param index The character index of the file. This includes '\n' as a valid
- *              character.
- */
 void PieceTable::setCursor(size_t index) {
     // TODO: be sure to handle setting the cursor to the end of the file
-    static_assert(false, "Not implemented");
+    size_t nodeIdx = 0;
+    while (index > nodes[nodeIdx].length) {
+        index -= nodes[nodeIdx].length;
+        ++nodeIdx;
+    }
+    cursor.indexOfNode = nodeIdx;
+    cursor.indexInNode = index;
 }
 
-// // Original file data (heap allocated)
-// char* original;
-// // Added data (heap allocated)
-// char* added;
+void PieceTable::reallocAddedIfNeeded() {
+    // append to the added string
+    if (addedSize == addedCapacity) {
+        addedCapacity *= 2;
+        if (addedCapacity == 0) { addedCapacity = 8; }
+        char* newAdded = (char*) realloc(added, addedCapacity);
 
-// // The current cursor position, used for insert and delete operations
-// Cursor cursor;
-
-// std::vector<Node> nodes;
+        if (newAdded != added) { // update the pointers for our nodes
+            for (Node& node : nodes) {
+                node.start = newAdded + (added - node.start);
+            }
+            added = newAdded;
+        }
+    }
+}

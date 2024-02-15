@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <string>
 
 class PieceTable final {
 public:
@@ -36,6 +37,8 @@ public:
      *              valid character.
      */
     void setCursor(size_t index);
+
+    std::string toString() const;
 
 private:
     struct Node final {

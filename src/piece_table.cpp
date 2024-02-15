@@ -17,9 +17,9 @@ PieceTable::PieceTable(const char* file_path) {
         auto size = file.tellg();
         original = (char*) malloc(size + static_cast<long long>(1)); // +1 for null terminator
         file.seekg(0);
-        std::cout << size << std::endl;
+        // std::cout << size << std::endl;
         file.read(original, size);
-        std::cout << original << std::endl;
+        // std::cout << original << std::endl;
 
         nodes.emplace_back(original, size, false);
     }
@@ -101,6 +101,14 @@ void PieceTable::setCursor(size_t index) {
     }
     cursor.indexOfNode = nodeIdx;
     cursor.indexInNode = index;
+}
+
+std::string PieceTable::toString() const {
+    std::string result;
+    for (const Node& node : nodes) {
+        result.append(node.start, node.length);
+    }
+    return "";   
 }
 
 void PieceTable::reallocAddedIfNeeded() {

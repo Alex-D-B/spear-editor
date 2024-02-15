@@ -38,7 +38,7 @@ public:
      */
     void setCursor(size_t index);
 
-    std::string toString() const;
+    std::string toString() const; // Return the entire file as a string.
 
 private:
     struct Node final {

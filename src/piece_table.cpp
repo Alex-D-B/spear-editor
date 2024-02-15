@@ -24,7 +24,7 @@ PieceTable::PieceTable(const char* file_path) {
         nodes.emplace_back(original, size, false);
     }
 
-    std::cout << original << std::endl;
+    // std::cout << original << std::endl;
     added = (char*) malloc(128);
     addedSize = 0;
     addedCapacity = 128;
@@ -51,12 +51,15 @@ PieceTable::~PieceTable() {
 void PieceTable::insertChar(char c) {
     // Make the cursor node point to the end of the added string
     // If the cursor doesn't point to the end of the added string.
+    std::cerr << "HERE 131" << std::endl;
     if (getCursorNode().start + cursor.indexInNode != added + addedSize) {
+        std::cerr << "HERE 13k2" << std::endl;
         // split the nodes
         nodes.emplace(nodes.begin() + cursor.indexOfNode + 1,
                       added + addedSize, 0, true);
         ++cursor.indexOfNode;
     }
+    std::cerr << "HERE 132" << std::endl;
     // append to the added string
     reallocAddedIfNeeded();
     Node& cursorNode = getCursorNode();
@@ -108,7 +111,7 @@ std::string PieceTable::toString() const {
     for (const Node& node : nodes) {
         result.append(node.start, node.length);
     }
-    return "";   
+    return result;   
 }
 
 void PieceTable::reallocAddedIfNeeded() {

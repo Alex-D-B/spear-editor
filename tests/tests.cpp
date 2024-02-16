@@ -30,6 +30,77 @@ TEST_CASE("PieceTable insertChar", "[catch2]") {
         pt.insertChar('a');
         REQUIRE(pt.toString() == "This is a file with test text!\nThis is the "
         "next line. followed by an empty line.\n\nThe line before this is empty"
-        "a");
+        ".a");
+    }
+
+    SECTION("Insert single character in the middle") {
+        pt.setCursor(5);
+        pt.insertChar('a');
+        REQUIRE(pt.toString() == "This ais a file with test text!\nThis is the "
+        "next line. followed by an empty line.\n\nThe line before this is empty"
+        ".");
+    }
+
+    SECTION("Insert single character after a newline") {
+        pt.setCursor(31);
+        pt.insertChar('a');
+        REQUIRE(pt.toString() == "This is a file with test text!\naThis is the "
+        "next line. followed by an empty line.\n\nThe line before this is empty"
+        ".");
+    }
+
+    SECTION("Insert single character at the end of a line") {
+        pt.setCursor(30);
+        pt.insertChar('a');
+        REQUIRE(pt.toString() == "This is a file with test text!a\nThis is the "
+        "next line. followed by an empty line.\n\nThe line before this is empty"
+        ".");
+    }
+
+    SECTION("Insert single character at many locations") {
+        pt.setCursor(0);
+        pt.insertChar('A');
+        pt.setCursor(6);
+        pt.insertChar('B');
+        pt.setCursor(33);
+        pt.insertChar('C');
+        pt.setCursor(32);
+        pt.insertChar('D');
+        pt.setCursor(pt.toString().length());
+        pt.insertChar('E');
+        REQUIRE(pt.toString() == "AThis Bis a file with test text!D\nCThis is t"
+        "he next line. followed by an empty line.\n\nThe line before this is em"
+        "pty.E");
+    }
+
+    SECTION("Insert multiple characters") {
+        pt.insertChar('A');
+        pt.insertChar('B');
+        pt.insertChar('C');
+        pt.setCursor(1);
+        pt.insertChar('D');
+        REQUIRE(pt.toString() == "ADBCThis is a file with test text!\nThis is th"
+        "e next line. followed by an empty line.\n\nThe line before this is emp"
+        "ty.");
+    }
+
+    SECTION("Insert multiple characters at many locations") {
+        pt.insertChar('A');
+        pt.insertChar('B');
+        pt.setCursor(7);
+        pt.insertChar('C');
+        pt.insertChar('D');
+        pt.setCursor(35);
+        pt.insertChar('E');
+        pt.insertChar('F');
+        pt.setCursor(34);
+        pt.insertChar('G');
+        pt.insertChar('H');
+        pt.setCursor(pt.toString().length());
+        pt.insertChar('I');
+        pt.insertChar('J');
+        REQUIRE(pt.toString() == "ABThis CDis a file with test text!GH\nEFThis"
+        " is the next line. followed by an empty line.\n\nThe line before this"
+        " is empty.IJ");
     }
 }

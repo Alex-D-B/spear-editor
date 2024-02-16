@@ -9,7 +9,8 @@ public:
 
 
     /**
-     * Create a new PieceTable from the given file.
+     * Create a new PieceTable from the given file. Cursor starts at the
+     * beginning.
      * 
      * @param file_path The path to the file to read.
      */
@@ -42,7 +43,7 @@ public:
 
 private:
     struct Node final {
-        char* start; // Points to either the original or added string
+        char* start; // Points to text in either the original or added string
         size_t length; // Number of characters in the node
         bool isAdded; // Whether the node is from the added string.
 

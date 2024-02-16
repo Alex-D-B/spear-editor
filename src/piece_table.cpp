@@ -8,7 +8,7 @@ PieceTable::PieceTable() {
     exit(1);
 }
 
-PieceTable::PieceTable(const char* file_path) {
+PieceTable::PieceTable(const char* file_path) : cursor{0, 0} {
     // Read the file into the original buffer
     std::ifstream file(file_path, std::ios::in);
     if (!file.is_open()) { std::cerr << "Error opening file\n"; exit(1); }
@@ -51,21 +51,41 @@ PieceTable::~PieceTable() {
 void PieceTable::insertChar(char c) {
     // Make the cursor node point to the end of the added string
     // If the cursor doesn't point to the end of the added string.
-    std::cerr << "HERE 131" << std::endl;
     if (getCursorNode().start + cursor.indexInNode != added + addedSize) {
-        std::cerr << "HERE 13k2" << std::endl;
-        // split the nodes
-        nodes.emplace(nodes.begin() + cursor.indexOfNode + 1,
-                      added + addedSize, 0, true);
-        ++cursor.indexOfNode;
+        if (cursor.indexInNode == 0) {
+            // If the cursor is at the beginning of a node...
+            // Insert a new node in front of the current node.
+            nodes.emplace(nodes.begin() + cursor.indexOfNode,
+                          added + addedSize, 0, true);
+        } else if (cursor.indexInNode == getCursorNode().length) {
+            // If the cursor is at the end of a node...
+            // Insert a new node after the current node.
+            nodes.emplace(nodes.begin() + cursor.indexOfNode + 1,
+                          added + addedSize, 0, true);
+            ++cursor.indexOfNode;
+            cursor.indexInNode = 0;
+        } else { // The cursor is in the middle of a node.
+            // Split the node into two nodes.
+            nodes.emplace(nodes.begin() + cursor.indexOfNode + 1,
+                          getCursorNode().start + cursor.indexInNode,
+                          getCursorNode().length - cursor.indexInNode,
+                          getCursorNode().isAdded);
+            // Update the original node.
+            getCursorNode().length = cursor.indexInNode;
+
+            // Insert new node in between the split nodes for cursor insertion.
+            nodes.emplace(nodes.begin() + cursor.indexOfNode + 1,
+                          added + addedSize, 0, true);
+            ++cursor.indexOfNode;
+            cursor.indexInNode = 0;
+        }
     }
-    std::cerr << "HERE 132" << std::endl;
+
     // append to the added string
     reallocAddedIfNeeded();
-    Node& cursorNode = getCursorNode();
     added[addedSize] = c;
     ++addedSize;
-    ++cursorNode.length;
+    ++getCursorNode().length;
     ++cursor.indexInNode;
 }
 

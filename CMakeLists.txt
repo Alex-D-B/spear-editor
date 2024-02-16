@@ -23,7 +23,11 @@ add_executable(spear src/main.cpp)
 target_link_libraries(spear PUBLIC src_library)
 
 add_subdirectory(tests)
+# Run suite of tests.
 add_executable(test tests/tests.cpp)
-
-target_link_libraries(test PRIVATE Catch2::Catch2WithMain test_library src_library)
 target_compile_options(test PRIVATE -g -O0)
+target_link_libraries(test PRIVATE Catch2::Catch2WithMain test_library src_library_debug)
+# Target for running miscelaneous code for debugging failures.
+add_executable(debug tests/debug.cpp)
+target_link_libraries(debug PRIVATE test_library src_library_debug)
+target_compile_options(debug PRIVATE -g -O0)

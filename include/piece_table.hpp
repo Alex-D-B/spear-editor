@@ -7,7 +7,6 @@ class PieceTable final {
 public:
     PieceTable();
 
-
     /**
      * Create a new PieceTable from the given file. Cursor starts at the
      * beginning.
@@ -15,11 +14,6 @@ public:
      * @param file_path The path to the file to read.
      */
     PieceTable(const char* file_path);
-    // PieceTable(const PieceTable& other);
-    // PieceTable(PieceTable&& other);
-
-    // PieceTable& operator=(const PieceTable& other);
-    // PieceTable& operator=(PieceTable&& other);
 
     ~PieceTable();
 
@@ -31,6 +25,7 @@ public:
      */
     void insertChar(char c);
     void deleteChar();
+
     /**
      * Set the cursor to the given index.
      * 

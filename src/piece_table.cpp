@@ -12,22 +12,25 @@ PieceTable::PieceTable(const char* file_path) : cursor{0, 0} {
     // Read the file into the original buffer
     std::ifstream file(file_path, std::ios::in);
     if (!file.is_open()) { std::cerr << "Error opening file\n"; exit(1); }
-    else {
-        file.seekg(0, std::ios::end); // check if correct
-        auto size = file.tellg();
-        original = (char*) malloc(size + static_cast<long long>(1)); // +1 for null terminator
-        file.seekg(0);
-        // std::cout << size << std::endl;
-        file.read(original, size);
-        // std::cout << original << std::endl;
 
-        nodes.emplace_back(original, size, false);
-    }
+    file.seekg(0, std::ios::end); // check if correct
+    auto size = file.tellg();
+    original = (char*) malloc(size + static_cast<long long>(1)); // +1 for null terminator
+    file.seekg(0);
+    // std::cout << size << std::endl;
+    file.read(original, size);
+    // std::cout << original << std::endl;
 
     // std::cout << original << std::endl;
     added = (char*) malloc(128);
     addedSize = 0;
     addedCapacity = 128;
+
+    if (size == 0) {
+        nodes.emplace_back(added, 0, true);
+    } else {
+        nodes.emplace_back(original, size, false);
+    }
 }
 // PieceTable::PieceTable(const PieceTable& other) {
 //     static_assert(false, "Not implemented");
@@ -93,30 +96,41 @@ void PieceTable::deleteChar() {
     // If the cursor is at position 0, the cursor should move to the previous
     // node. If the cursor is in the middle of a node, the node should be split
     // into two nodes.
-    Node& oldCursorNode = getCursorNode();
-    // If the cursor isn't at the end of a node.
-    if (cursor.indexInNode != oldCursorNode.length) {
+    if (cursor.indexInNode == 0) {
+        // If at the beginning of the file, don't do anything.
+        if (cursor.indexOfNode == 0) { 
+            return;
+        }
+        // Move the cursor to the previous node.
+        --cursor.indexOfNode;
+        cursor.indexInNode = getCursorNode().length;
+    } else if (cursor.indexInNode != getCursorNode().length) {
+        // If the cursor isn't at the end of a node...
         // split the node
         nodes.emplace(nodes.begin() + cursor.indexOfNode + 1,
-                      oldCursorNode.start + cursor.indexInNode,
-                      oldCursorNode.length - cursor.indexInNode,
-                      oldCursorNode.isAdded);
+                      getCursorNode().start + cursor.indexInNode,
+                      getCursorNode().length - cursor.indexInNode,
+                      getCursorNode().isAdded);
         getCursorNode().length = cursor.indexInNode;
     }
-    // move the cursor to the previous node, and delete the character
-    Node& cursorNode = getCursorNode();
+    Node& cursorNode = getCursorNode(); // might have moved after emplace
     --cursorNode.length;
     --cursor.indexInNode;
     if (cursorNode.length == 0) {
         // remove the node
         nodes.erase(nodes.begin() + cursor.indexOfNode);
-        --cursor.indexOfNode;
-        cursor.indexInNode = nodes[cursor.indexOfNode].length;
+        // Add sentinel node if the file is now empty.
+        if (nodes.size() == 0) {
+            nodes.emplace_back(added + addedSize, 0, true);
+        } else if (cursor.indexOfNode != 0) {
+            --cursor.indexOfNode;
+            cursor.indexInNode = nodes[cursor.indexOfNode].length;
+        }
     }
+
 }
 
 void PieceTable::setCursor(size_t index) {
-    // TODO: be sure to handle setting the cursor to the end of the file
     size_t nodeIdx = 0;
     while (index > nodes[nodeIdx].length) {
         index -= nodes[nodeIdx].length;
@@ -143,7 +157,9 @@ void PieceTable::reallocAddedIfNeeded() {
 
         if (newAdded != added) { // update the pointers for our nodes
             for (Node& node : nodes) {
-                node.start = newAdded + (added - node.start);
+                if (node.isAdded) {
+                    node.start = newAdded + (node.start - added);
+                }
             }
             added = newAdded;
         }

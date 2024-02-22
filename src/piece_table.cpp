@@ -15,13 +15,11 @@ PieceTable::PieceTable(const char* file_path) : cursor{0, 0} {
 
     file.seekg(0, std::ios::end); // check if correct
     auto size = file.tellg();
-    original = (char*) malloc(size + static_cast<long long>(1)); // +1 for null terminator
+    // +1 for null terminator
+    original = (char*) malloc(size + static_cast<long long>(1));
     file.seekg(0);
-    // std::cout << size << std::endl;
     file.read(original, size);
-    // std::cout << original << std::endl;
 
-    // std::cout << original << std::endl;
     added = (char*) malloc(128);
     addedSize = 0;
     addedCapacity = 128;

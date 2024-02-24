@@ -414,3 +414,24 @@ TEST_CASE("PieceTable insertChar and deleteChar", "[catch2]") {
         */
     }
 }
+
+TEST_CASE("PieceTable lineLength", "[catch2]") {
+    PieceTable pt("../tests/test1.txt");
+
+    REQUIRE (pt.lineLengthPUB() == 31);
+    pt.setCursor(1);
+    REQUIRE (pt.lineLengthPUB() == 31);
+    pt.setCursor(30);
+    REQUIRE (pt.lineLengthPUB() == 31);
+
+    pt.setCursor(31);
+    REQUIRE (pt.lineLengthPUB() == 50);
+    pt.setCursor(81);
+    REQUIRE (pt.lineLengthPUB() == 1);
+
+    pt.setCursor(82);
+    REQUIRE (pt.lineLengthPUB() == 30);
+    pt.setCursor(83);
+    REQUIRE (pt.lineLengthPUB() == 30);
+
+}

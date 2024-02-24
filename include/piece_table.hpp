@@ -34,7 +34,23 @@ public:
      */
     void setCursor(size_t index);
 
-    std::string toString() const; // Return the entire file as a string.
+    // Return the entire file as a string.
+    std::string toString() const;
+    
+    // Move the cursor to the left. Wraps to the previous line if necessary.
+    void moveLeft();
+    // Move the cursor to the right. Wraps to the next line if necessary.
+    void moveRight();
+    // Move the cursor up.
+    void moveUp();
+    // Move the cursor down.
+    void moveDown();
+
+    #ifdef DEBUG_MODE
+    size_t lineLengthPUB() const {
+        return lineLength();
+    }
+    #endif
 
 private:
     struct Node final {
@@ -56,6 +72,7 @@ private:
         size_t indexInNode;
     };
 
+
     // Original file data (heap allocated)
     char* original;
     // Added data (heap allocated)
@@ -75,4 +92,11 @@ private:
     inline Node& getCursorNode() {
         return nodes[cursor.indexOfNode];
     }
+
+    inline const Node& getCursorNode() const {
+        return nodes[cursor.indexOfNode];
+    }
+
+    // Get the length of the current line. '\n' is included in the length.
+    size_t lineLength() const;
 };

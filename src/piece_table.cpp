@@ -1,7 +1,9 @@
 #include "piece_table.hpp"
 
 #include <fstream>
+#include <assert.h>
 #include <iostream>
+#include <ncurses.h>
 
 PieceTable::PieceTable() {
     // static_assert(false, "Not implemented");
@@ -88,6 +90,11 @@ void PieceTable::insertChar(char c) {
     ++addedSize;
     ++getCursorNode().length;
     ++cursor.indexInNode;
+
+    // Update the terminal display
+    insch(c);
+    // Move cursor to the right
+    moveRight();
 }
 
 void PieceTable::deleteChar() {
@@ -161,5 +168,81 @@ void PieceTable::reallocAddedIfNeeded() {
             }
             added = newAdded;
         }
+    }
+}
+
+size_t PieceTable::lineLength() const {
+    size_t length = 0;
+    Cursor tempCursor = cursor;
+    while (getCursorNode().start[tempCursor.indexInNode] != '\n') {
+        // update temp cursor position
+        if (tempCursor.indexInNode == getCursorNode().length) {
+            if (tempCursor.indexOfNode == nodes.size() - 1) {
+                break;
+            }
+            ++tempCursor.indexOfNode;
+            tempCursor.indexInNode = 0;
+        } else {
+            ++tempCursor.indexInNode;
+        }
+        ++length;
+    }
+    ++length;
+    
+    tempCursor = cursor;
+    do {
+        // update temp cursor position
+        if (tempCursor.indexInNode == 0) {
+            if (tempCursor.indexOfNode == 0) {
+                break;
+            }
+            --tempCursor.indexOfNode;
+            tempCursor.indexInNode = nodes[tempCursor.indexOfNode].length - 1;
+        } else {
+            --tempCursor.indexInNode;
+        }
+        ++length;
+    } while (getCursorNode().start[tempCursor.indexInNode] != '\n');
+
+    return length;
+}
+
+void PieceTable::moveLeft() {
+    // First update internal representation
+    if (cursor.indexInNode == 0) {
+        if (cursor.indexOfNode == 0) {
+            return;
+        }
+        --cursor.indexOfNode;
+        cursor.indexInNode = getCursorNode().length - 1;
+    }
+
+    // Update absolute representation.
+    int x = getcurx(stdscr);
+    if (x == 0) {
+        move(getcury(stdscr) - 1, lineLength());
+    } else {
+        move(getcury(stdscr), getcurx(stdscr) - 1);
+    }
+}
+
+void PieceTable::moveRight() {
+    // First update internal representation
+    if (cursor.indexInNode == getCursorNode().length) {
+        if (cursor.indexOfNode == nodes.size() - 1) {
+            return;
+        }
+        ++cursor.indexOfNode;
+        cursor.indexInNode = 0;
+    }
+    assert(cursor.indexInNode < getCursorNode().length);
+    char prevChar = getCursorNode().start[cursor.indexInNode] == '\n';
+    ++cursor.indexInNode;
+
+    // Update absolute representation.
+    if (prevChar == '\n') {
+        move(getcury(stdscr) + 1, 0);
+    } else {
+        move(getcury(stdscr), getcurx(stdscr) + 1);
     }
 }

@@ -3,6 +3,8 @@
 
 #include <ncurses.h>
 
+constexpr int CTRL_C = 0x3;
+
 int main(int argc, char** argv) {
     // init screen and sets up screen
     initscr();
@@ -16,22 +18,36 @@ int main(int argc, char** argv) {
 
     // forward input to program, including things like Ctrl+C
     raw();
+
+    // do not automatically echo input so we can validate it first
+    noecho();
     
     // enable arrow keys to be read
     keypad(stdscr, true);
 
     // print to screen
-    printw("Hello World");
+    printw(pt.toString().c_str());
 
     while (true) {
         // read in a character at a time
-        char inputChar = getch();
+        int inputChar = wgetch(stdscr);
 
-        if (inputChar == 'q') {
+        if (inputChar == CTRL_C) {
             break;
         }
 
-        // TODO: input handler functions here
+        switch (inputChar) {
+            case KEY_LEFT:
+                pt.moveLeft();
+                break;
+            case KEY_RIGHT:
+                pt.moveRight();
+                break;
+        }
+
+        if (isalnum(inputChar) || ispunct(inputChar) || isspace(inputChar)) {
+            pt.insertChar(inputChar);
+        }
 
         // refreshes the screen
         refresh();

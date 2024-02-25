@@ -70,6 +70,11 @@ private:
         size_t indexOfNode;
         // Index of the current cursor position in the current node.
         size_t indexInNode;
+
+        bool operator!=(const Cursor& other) const {
+            return indexOfNode != other.indexOfNode
+                || indexInNode != other.indexInNode;
+        }
     };
 
 

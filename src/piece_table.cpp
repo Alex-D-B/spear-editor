@@ -89,7 +89,6 @@ void PieceTable::insertChar(char c) {
     added[addedSize] = c;
     ++addedSize;
     ++getCursorNode().length;
-    ++cursor.indexInNode;
 
     // Update the terminal display
     insch(c);
@@ -178,6 +177,7 @@ size_t PieceTable::lineLength() const {
         // update temp cursor position
         if (tempCursor.indexInNode == getCursorNode().length) {
             if (tempCursor.indexOfNode == nodes.size() - 1) {
+                --length; // get rid of '\0' at the end
                 break;
             }
             ++tempCursor.indexOfNode;
@@ -187,10 +187,13 @@ size_t PieceTable::lineLength() const {
         }
         ++length;
     }
-    ++length;
+    ++length; // count new line at the end
     
     tempCursor = cursor;
     do {
+        if (tempCursor != cursor) {
+            ++length;
+        }
         // update temp cursor position
         if (tempCursor.indexInNode == 0) {
             if (tempCursor.indexOfNode == 0) {
@@ -201,7 +204,6 @@ size_t PieceTable::lineLength() const {
         } else {
             --tempCursor.indexInNode;
         }
-        ++length;
     } while (getCursorNode().start[tempCursor.indexInNode] != '\n');
 
     return length;

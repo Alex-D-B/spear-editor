@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
     keypad(stdscr, true);
 
     // print to screen
-    printw(pt.toString().c_str());
+    printw("%s", pt.toString().c_str());
 
     while (true) {
         // read in a character at a time

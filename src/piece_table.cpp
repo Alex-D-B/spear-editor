@@ -18,7 +18,7 @@ PieceTable::PieceTable(const char* file_path) : cursor{0, 0} {
     file.seekg(0, std::ios::end); // check if correct
     auto size = file.tellg();
     // +1 for null terminator
-    original = (char*) malloc(size + static_cast<long long>(1));
+    original = (char*) malloc(static_cast<size_t>(size) + 1);
     file.seekg(0);
     file.read(original, size);
 

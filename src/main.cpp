@@ -28,6 +28,9 @@ int main(int argc, char** argv) {
     // print to screen
     printw("%s", pt.toString().c_str());
 
+    // start the cursor at the beginning of the file
+    move(0, 0);
+
     while (true) {
         // read in a character at a time
         int inputChar = wgetch(stdscr);

@@ -213,11 +213,18 @@ void PieceTable::moveLeft() {
     // First update internal representation
     if (cursor.indexInNode == 0) {
         if (cursor.indexOfNode == 0) {
+            int x = getcurx(stdscr);
+            int y = getcury(stdscr);
+            mvprintw(3, 0, "%s", std::to_string(cursor.indexOfNode).c_str());
+            mvprintw(4, 0, "%s", std::to_string(cursor.indexInNode).c_str());
+            mvprintw(5, 0, "%s", std::to_string(nodes.size()).c_str());
+            move(y, x);
             return;
         }
         --cursor.indexOfNode;
         cursor.indexInNode = getCursorNode().length - 1;
     }
+    --cursor.indexInNode;
 
     // Update absolute representation.
     int x = getcurx(stdscr);
@@ -226,19 +233,35 @@ void PieceTable::moveLeft() {
     } else {
         move(getcury(stdscr), getcurx(stdscr) - 1);
     }
+    x = getcurx(stdscr);
+    int y = getcury(stdscr);
+    mvprintw(3, 0, "%s", std::to_string(cursor.indexOfNode).c_str());
+    mvprintw(4, 0, "%s", std::to_string(cursor.indexInNode).c_str());
+    mvprintw(5, 0, "%s", std::to_string(nodes.size()).c_str());
+    move(y, x);
 }
 
 void PieceTable::moveRight() {
     // First update internal representation
     if (cursor.indexInNode == getCursorNode().length) {
         if (cursor.indexOfNode == nodes.size() - 1) {
+            int x = getcurx(stdscr);
+            int y = getcury(stdscr);
+            mvprintw(3, 0, "%s", std::to_string(cursor.indexOfNode).c_str());
+            mvprintw(4, 0, "%s", std::to_string(cursor.indexInNode).c_str());
+            mvprintw(5, 0, "%s", std::to_string(nodes.size()).c_str());
+            move(y, x);
             return;
         }
         ++cursor.indexOfNode;
         cursor.indexInNode = 0;
     }
+    if (cursor.indexOfNode == nodes.size() - 1 && cursor.indexInNode == nodes.back().length - 1) {
+        return;
+    }
+
     assert(cursor.indexInNode < getCursorNode().length);
-    char prevChar = getCursorNode().start[cursor.indexInNode] == '\n';
+    char prevChar = getCursorNode().start[cursor.indexInNode];
     ++cursor.indexInNode;
 
     // Update absolute representation.
@@ -247,4 +270,11 @@ void PieceTable::moveRight() {
     } else {
         move(getcury(stdscr), getcurx(stdscr) + 1);
     }
+
+    int x = getcurx(stdscr);
+    int y = getcury(stdscr);
+    mvprintw(3, 0, "%s", std::to_string(cursor.indexOfNode).c_str());
+    mvprintw(4, 0, "%s", std::to_string(cursor.indexInNode).c_str());
+    mvprintw(5, 0, "%s", std::to_string(nodes.size()).c_str());
+    move(y, x);
 }

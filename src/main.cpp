@@ -47,6 +47,8 @@ int main(int argc, char** argv) {
                 pt.moveRight();
                 break;
             case KEY_BACKSPACE:
+            case KEY_DC:
+            case 127:
                 pt.deleteChar();
                 break;
         }

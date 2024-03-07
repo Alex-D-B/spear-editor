@@ -9,7 +9,16 @@
 
 int main() {
     // Add tests here for easier debugging.
-    PieceTable pt(PROJECT_ROOT "tests/test1.txt");
+    PieceTable pt(PROJECT_ROOT "tests/test2.txt");
+
+    std::cout << pt.toString() << std::endl;
+
+    pt.moveRight();
+    pt.moveRight();
+    pt.insertChar('a');
+    pt.moveLeft();
+    pt.moveLeft();
+    pt.insertChar('a');
 
     std::cout << pt.toString() << std::endl;
 }

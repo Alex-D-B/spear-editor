@@ -133,8 +133,8 @@ void PieceTable::deleteChar() {
     }
 
     // Update the terminal display
-    // move(getcury(stdscr), getcurx(stdscr) - 1);
-    // delch();
+    move(getcury(stdscr), getcurx(stdscr) - 1);
+    delch();
 }
 
 void PieceTable::setCursor(size_t index) {
@@ -254,16 +254,16 @@ void PieceTable::moveRight(bool verbose) {
             // mvprintw(4, 0, "%s", std::to_string(cursor.indexInNode).c_str());
             // mvprintw(5, 0, "%s", std::to_string(nodes.size()).c_str());
             // move(y, x);
-            std::cout << "returned here\n";
+            // std::cout << "returned here\n";
             return;
         }
         ++cursor.indexOfNode;
         cursor.indexInNode = 0;
     }
-    if (cursor.indexOfNode == nodes.size() - 1 && cursor.indexInNode == nodes.back().length - 1) {
-        std::cout << "here" << std::endl;
-        return;
-    }
+    // if (cursor.indexOfNode == nodes.size() - 1 && cursor.indexInNode == nodes.back().length - 1) {
+    //     std::cout << "here" << std::endl;
+    //     return;
+    // }
 
     assert(cursor.indexInNode < getCursorNode().length);
     char prevChar = getCursorNode().start[cursor.indexInNode];
@@ -283,3 +283,15 @@ void PieceTable::moveRight(bool verbose) {
     // mvprintw(5, 0, "%s", std::to_string(nodes.size()).c_str());
     // move(y, x);
 }
+
+
+// #ifdef DEBUG_MODE
+// size_t PieceTable::getGlobalCharIndex() {
+//     size_t index = 0;
+//     for (size_t i = 0; i < cursor.indexOfNode; ++i) {
+//         index += nodes[i].length;
+//     }
+//     index += cursor.indexInNode;
+//     return index;
+// }
+// #endif

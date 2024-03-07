@@ -46,13 +46,10 @@ public:
     // Move the cursor down.
     void moveDown();
 
-    #ifdef DEBUG_MODE
-    size_t lineLengthPUB() const {
-        return lineLength();
-    }
-    #endif
-
+#ifndef DEBUG_MODE
 private:
+#endif
+
     struct Node final {
         char* start; // Points to text in either the original or added string
         size_t length; // Number of characters in the node
@@ -61,6 +58,35 @@ private:
         Node(char* start, size_t length, bool isAdded)
             : start(start), length(length), isAdded(isAdded) {}
     };
+
+#ifdef DEBUG_MODE
+    size_t lineLengthPUB() const {
+        return lineLength();
+    }
+    struct PosPair {
+        int indexInNode;
+        int indexOfNode;
+    };
+    PosPair getCursorPos() const {
+        return {static_cast<int>(cursor.indexInNode), static_cast<int>(cursor.indexOfNode)};
+    }
+
+    // Get the global index of the cursor in the current file string.
+    size_t getGlobalCharIndex() {
+        size_t index = 0;
+        for (size_t i = 0; i < cursor.indexOfNode; ++i) {
+            index += nodes[i].length;
+        }
+        index += cursor.indexInNode;
+        return index;
+    }
+
+    std::vector<Node>& getNodes() {
+        return nodes;
+    }
+
+private:
+#endif
 
     // Cursor position. This might not be the same
     // as the user's cursor position. This will stay in the same position until

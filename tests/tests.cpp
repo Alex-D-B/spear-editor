@@ -433,5 +433,17 @@ TEST_CASE("PieceTable lineLength", "[catch2]") {
     REQUIRE (pt.lineLengthPUB() == 30);
     pt.setCursor(83);
     REQUIRE (pt.lineLengthPUB() == 30);
+}
 
+TEST_CASE("Move left and right", "[catch2]") {
+    PieceTable pt("../tests/test2.txt");
+
+    SECTION("Move left") {
+        pt.setCursor(36);
+        pt.insertChar('!');
+        REQUIRE(pt.toString() == "the here is a line that is not empty!.");
+        pt.moveRight();
+        pt.insertChar('!');
+        REQUIRE(pt.toString() == "the here is a line that is not empty!.!");
+    }
 }

@@ -93,7 +93,7 @@ void PieceTable::insertChar(char c) {
     // Update the terminal display
     insch(c);
     // Move cursor to the right
-    moveRight();
+    moveRight(true);
 }
 
 void PieceTable::deleteChar() {
@@ -132,6 +132,9 @@ void PieceTable::deleteChar() {
         }
     }
 
+    // Update the terminal display
+    // move(getcury(stdscr), getcurx(stdscr) - 1);
+    // delch();
 }
 
 void PieceTable::setCursor(size_t index) {
@@ -213,12 +216,12 @@ void PieceTable::moveLeft() {
     // First update internal representation
     if (cursor.indexInNode == 0) {
         if (cursor.indexOfNode == 0) {
-            int x = getcurx(stdscr);
-            int y = getcury(stdscr);
-            mvprintw(3, 0, "%s", std::to_string(cursor.indexOfNode).c_str());
-            mvprintw(4, 0, "%s", std::to_string(cursor.indexInNode).c_str());
-            mvprintw(5, 0, "%s", std::to_string(nodes.size()).c_str());
-            move(y, x);
+            // int x = getcurx(stdscr);
+            // int y = getcury(stdscr);
+            // mvprintw(3, 0, "%s", std::to_string(cursor.indexOfNode).c_str());
+            // mvprintw(4, 0, "%s", std::to_string(cursor.indexInNode).c_str());
+            // mvprintw(5, 0, "%s", std::to_string(nodes.size()).c_str());
+            // move(y, x);
             return;
         }
         --cursor.indexOfNode;
@@ -233,30 +236,32 @@ void PieceTable::moveLeft() {
     } else {
         move(getcury(stdscr), getcurx(stdscr) - 1);
     }
-    x = getcurx(stdscr);
-    int y = getcury(stdscr);
-    mvprintw(3, 0, "%s", std::to_string(cursor.indexOfNode).c_str());
-    mvprintw(4, 0, "%s", std::to_string(cursor.indexInNode).c_str());
-    mvprintw(5, 0, "%s", std::to_string(nodes.size()).c_str());
-    move(y, x);
+    // x = getcurx(stdscr);
+    // int y = getcury(stdscr);
+    // mvprintw(3, 0, "%s", std::to_string(cursor.indexOfNode).c_str());
+    // mvprintw(4, 0, "%s", std::to_string(cursor.indexInNode).c_str());
+    // mvprintw(5, 0, "%s", std::to_string(nodes.size()).c_str());
+    // move(y, x);
 }
 
-void PieceTable::moveRight() {
+void PieceTable::moveRight(bool verbose) {
     // First update internal representation
     if (cursor.indexInNode == getCursorNode().length) {
         if (cursor.indexOfNode == nodes.size() - 1) {
-            int x = getcurx(stdscr);
-            int y = getcury(stdscr);
-            mvprintw(3, 0, "%s", std::to_string(cursor.indexOfNode).c_str());
-            mvprintw(4, 0, "%s", std::to_string(cursor.indexInNode).c_str());
-            mvprintw(5, 0, "%s", std::to_string(nodes.size()).c_str());
-            move(y, x);
+            // int x = getcurx(stdscr);
+            // int y = getcury(stdscr);
+            // mvprintw(3, 0, "%s", std::to_string(cursor.indexOfNode).c_str());
+            // mvprintw(4, 0, "%s", std::to_string(cursor.indexInNode).c_str());
+            // mvprintw(5, 0, "%s", std::to_string(nodes.size()).c_str());
+            // move(y, x);
+            std::cout << "returned here\n";
             return;
         }
         ++cursor.indexOfNode;
         cursor.indexInNode = 0;
     }
     if (cursor.indexOfNode == nodes.size() - 1 && cursor.indexInNode == nodes.back().length - 1) {
+        std::cout << "here" << std::endl;
         return;
     }
 
@@ -271,10 +276,10 @@ void PieceTable::moveRight() {
         move(getcury(stdscr), getcurx(stdscr) + 1);
     }
 
-    int x = getcurx(stdscr);
-    int y = getcury(stdscr);
-    mvprintw(3, 0, "%s", std::to_string(cursor.indexOfNode).c_str());
-    mvprintw(4, 0, "%s", std::to_string(cursor.indexInNode).c_str());
-    mvprintw(5, 0, "%s", std::to_string(nodes.size()).c_str());
-    move(y, x);
+    // int x = getcurx(stdscr);
+    // int y = getcury(stdscr);
+    // mvprintw(3, 0, "%s", std::to_string(cursor.indexOfNode).c_str());
+    // mvprintw(4, 0, "%s", std::to_string(cursor.indexInNode).c_str());
+    // mvprintw(5, 0, "%s", std::to_string(nodes.size()).c_str());
+    // move(y, x);
 }

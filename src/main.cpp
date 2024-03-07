@@ -46,11 +46,19 @@ int main(int argc, char** argv) {
             case KEY_RIGHT:
                 pt.moveRight();
                 break;
+            case KEY_BACKSPACE:
+                pt.deleteChar();
+                break;
         }
 
         if (isalnum(inputChar) || ispunct(inputChar) || isspace(inputChar)) {
             pt.insertChar(inputChar);
         }
+
+        int x = getcurx(stdscr);
+        int y = getcury(stdscr);
+        mvprintw(5, 0, "%s", pt.toString().c_str());
+        move(y, x);
 
         // refreshes the screen
         refresh();

@@ -40,7 +40,7 @@ public:
     // Move the cursor to the left. Wraps to the previous line if necessary.
     void moveLeft();
     // Move the cursor to the right. Wraps to the next line if necessary.
-    void moveRight();
+    void moveRight(bool verbose = false);
     // Move the cursor up.
     void moveUp();
     // Move the cursor down.

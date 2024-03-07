@@ -453,35 +453,15 @@ TEST_CASE("Move left and right", "[catch2]") {
         REQUIRE(pt.getGlobalCharIndex() == 1);
         pt.moveRight();
         REQUIRE(pt.getGlobalCharIndex() == 2);
-        auto pos = pt.getCursorPos();
-        std::cout << "Cursor at: " << pos.indexInNode << " " << pos.indexOfNode << std::endl;
-        auto nodes = pt.getNodes();
-        for (auto node : nodes) {
-            std::cout << "Node starting at " << *(node.start) << " and covering " << node.length << " characters.\n";
-        }
         pt.insertChar('a');
-        pos = pt.getCursorPos();
-        std::cout << "Cursor at: " << pos.indexInNode << " " << pos.indexOfNode << std::endl;
-        nodes = pt.getNodes();
-        for (auto node : nodes) {
-            std::cout << "Node starting at " << *(node.start) << " and covering " << node.length << " characters.\n";
-        }
+        REQUIRE(pt.getGlobalCharIndex() == 3);
         pt.moveLeft();
-        pos = pt.getCursorPos();
-        std::cout << "Cursor at: " << pos.indexInNode << " " << pos.indexOfNode << std::endl;
-        nodes = pt.getNodes();
-        for (auto node : nodes) {
-            std::cout << "Node starting at " << *(node.start) << " and covering " << node.length << " characters.\n";
-        }
+        REQUIRE(pt.getGlobalCharIndex() == 2);
         pt.moveLeft();
-        pos = pt.getCursorPos();
-        std::cout << "Cursor at: " << pos.indexInNode << " " << pos.indexOfNode << std::endl;
-        nodes = pt.getNodes();
-        for (auto node : nodes) {
-            std::cout << "Node starting at " << *(node.start) << " and covering " << node.length << " characters.\n";
-        }
+        REQUIRE(pt.getGlobalCharIndex() == 1);
         pt.insertChar('a');
-        REQUIRE(pt.toString() == "thae here is a line that is not empty.");
+        REQUIRE(pt.getGlobalCharIndex() == 2);
+        REQUIRE(pt.toString() == "tahae here is a line that is not empty.");
     }
 
     SECTION("Add char, move to start, add another char") {
@@ -497,6 +477,5 @@ TEST_CASE("Move left and right", "[catch2]") {
         pt.insertChar('a');
         REQUIRE(pt.getGlobalCharIndex() == 1);
         REQUIRE(pt.toString() == "atahe here is a line that is not empty.");
-        // the here is a line that is not empty.
     }
 }

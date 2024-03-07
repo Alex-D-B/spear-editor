@@ -225,7 +225,7 @@ void PieceTable::moveLeft() {
             return;
         }
         --cursor.indexOfNode;
-        cursor.indexInNode = getCursorNode().length - 1;
+        cursor.indexInNode = getCursorNode().length;
     }
     --cursor.indexInNode;
 

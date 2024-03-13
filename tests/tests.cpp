@@ -479,3 +479,36 @@ TEST_CASE("Move left and right", "[catch2]") {
         REQUIRE(pt.toString() == "atahe here is a line that is not empty.");
     }
 }
+
+TEST_CASE("Write to File", "[catch2]") {
+    remove("Untitled");
+    std::string text = "this is a single line that will appear in a file";
+    {
+        PieceTable pt {};
+
+        REQUIRE(pt.toString() == "");
+        for (char c : text) {
+            pt.insertChar(c);
+        }
+
+        pt.saveToFile();
+        REQUIRE(pt.toString() == text);
+    }
+    {
+        PieceTable pt("Untitled");
+
+        REQUIRE(pt.toString() == text);
+        pt.setCursor(text.size());
+        for (size_t i = 0; i < text.size(); ++i) {
+            pt.deleteChar();
+        }
+        pt.saveToFile();
+    }
+    {
+        PieceTable pt("Untitled");
+        REQUIRE(pt.toString() == "");
+    }
+    remove("test.txt");
+    PieceTable pt("test.txt");
+    REQUIRE(pt.toString() == "");
+}

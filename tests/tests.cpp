@@ -430,9 +430,47 @@ TEST_CASE("PieceTable lineLength", "[catch2]") {
     REQUIRE (pt.lineLengthPUB() == 1);
 
     pt.setCursor(82);
-    REQUIRE (pt.lineLengthPUB() == 30);
+    REQUIRE (pt.lineLengthPUB() == 31);
     pt.setCursor(83);
-    REQUIRE (pt.lineLengthPUB() == 30);
+    REQUIRE (pt.lineLengthPUB() == 31);
+
+    // With insertions.
+    pt.setCursor(10);
+    pt.insertChar('A');
+    REQUIRE (pt.lineLengthPUB() == 32);
+    pt.setCursor(31);
+    REQUIRE (pt.lineLengthPUB() == 32);
+    pt.setCursor(32);
+    REQUIRE (pt.lineLengthPUB() == 50);
+    
+    pt.setCursor(20);
+    pt.insertChar('B');
+    REQUIRE (pt.lineLengthPUB() == 33);
+    pt.setCursor(32);
+    REQUIRE (pt.lineLengthPUB() == 33);
+    pt.setCursor(33);
+    REQUIRE (pt.lineLengthPUB() == 50);
+
+    // Beginning of line/file
+    pt.setCursor(0);
+    pt.insertChar('C');
+    REQUIRE (pt.lineLengthPUB() == 34);
+    pt.setCursor(33);
+    REQUIRE (pt.lineLengthPUB() == 34);
+    pt.setCursor(34);
+    REQUIRE (pt.lineLengthPUB() == 50);
+
+    // At end of line.
+    pt.setCursor(33);
+    pt.insertChar('D');
+    REQUIRE (pt.lineLengthPUB() == 35);
+    pt.setCursor(35);
+    REQUIRE (pt.lineLengthPUB() == 50);
+
+    // End of file.
+    pt.setCursor(pt.toString().length());
+    pt.insertChar('E');
+    REQUIRE (pt.lineLengthPUB() == 32);
 }
 
 TEST_CASE("Move left and right", "[catch2]") {

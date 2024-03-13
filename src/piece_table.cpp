@@ -91,7 +91,7 @@ void PieceTable::insertChar(char c) {
     // Update the terminal display
     insch(c);
     // Move cursor to the right
-    moveRight(true);
+    moveRight();
 }
 
 void PieceTable::deleteChar() {
@@ -160,6 +160,63 @@ void PieceTable::saveToFile() {
     file << toString();
 }
 
+bool PieceTable::incrementCursor(Cursor& cur) const {
+    if (cur.indexInNode == nodes[cur.indexOfNode].length) {
+        if (cur.indexOfNode == nodes.size() - 1) {
+            return true;
+        }
+        ++cur.indexOfNode;
+        cur.indexInNode = 1;
+    } else {
+        ++cur.indexInNode;
+    }
+    return false;
+}
+
+bool PieceTable::incrementCursor(Cursor& cur, size_t amount) const {
+    // TODO: optimize
+    for (size_t i = 0; i < amount; ++i) {
+        if (incrementCursor(cur)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool PieceTable::decrementCursor(Cursor& cur) const {
+    if (cur.indexInNode == 0) {
+        if (cur.indexOfNode == 0) {
+            return true;
+        }
+        --cur.indexOfNode;
+        cur.indexInNode = nodes[cur.indexOfNode].length - 1;
+    } else {
+        --cur.indexInNode;
+    }
+    return false;
+}
+
+bool PieceTable::decrementCursor(Cursor& cur, size_t amount) const {
+    // TODO: optimize
+    for (size_t i = 0; i < amount; ++i) {
+        if (decrementCursor(cur)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+char PieceTable::getCharAtCursor(Cursor& cur) const {
+    if (cur.indexOfNode == nodes.size()
+            || (cur.indexOfNode == nodes.size() - 1
+                    && cur.indexInNode == nodes[cur.indexOfNode].length)) {
+        return '\0';
+    } else if (cur.indexInNode == nodes[cur.indexOfNode].length) {
+        return nodes[cur.indexOfNode + 1].start[0];
+    }
+    return nodes[cur.indexOfNode].start[cur.indexInNode];
+}
+
 void PieceTable::reallocAddedIfNeeded() {
     // append to the added string
     if (addedSize == addedCapacity) {
@@ -181,18 +238,13 @@ void PieceTable::reallocAddedIfNeeded() {
 size_t PieceTable::lineLength() const {
     size_t length = 0;
     Cursor tempCursor = cursor;
-    while (getCursorNode().start[tempCursor.indexInNode] != '\n') {
+    char c;
+    while ((c = getCharAtCursor(tempCursor)) != '\n' && c != '\0') {
         // update temp cursor position
-        if (tempCursor.indexInNode == getCursorNode().length) {
-            if (tempCursor.indexOfNode == nodes.size() - 1) {
+        if (incrementCursor(tempCursor)) {
                 --length; // get rid of '\0' at the end
                 break;
             }
-            ++tempCursor.indexOfNode;
-            tempCursor.indexInNode = 0;
-        } else {
-            ++tempCursor.indexInNode;
-        }
         ++length;
     }
     ++length; // count new line at the end
@@ -203,76 +255,67 @@ size_t PieceTable::lineLength() const {
             ++length;
         }
         // update temp cursor position
-        if (tempCursor.indexInNode == 0) {
-            if (tempCursor.indexOfNode == 0) {
-                break;
-            }
-            --tempCursor.indexOfNode;
-            tempCursor.indexInNode = nodes[tempCursor.indexOfNode].length - 1;
-        } else {
-            --tempCursor.indexInNode;
+        if (decrementCursor(tempCursor)) {
+            break;
         }
-    } while (getCursorNode().start[tempCursor.indexInNode] != '\n');
+    } while (getCharAtCursor(tempCursor) != '\n');
 
     return length;
 }
 
+size_t PieceTable::lineNumber() const {
+    size_t number = 1;
+    Cursor tempCur = cursor;
+    while (true) {
+        if (decrementCursor(tempCur)) {
+            return number;
+        }
+
+        if (nodes[tempCur.indexOfNode].start[tempCur.indexInNode] == '\n') {
+            ++number;
+        }
+    }
+}
+
+size_t PieceTable::numLines() const {
+    size_t number = 1;
+    for (const Node& node : nodes) {
+        for (size_t i = 0; i < node.length; ++i) {
+            if (node.start[i] == '\n') {
+                ++number;
+            }
+        }
+    }
+    return number;
+}
+
 void PieceTable::moveLeft() {
     // First update internal representation
-    if (cursor.indexInNode == 0) {
-        if (cursor.indexOfNode == 0) {
-            // int x = getcurx(stdscr);
-            // int y = getcury(stdscr);
-            // mvprintw(3, 0, "%s", std::to_string(cursor.indexOfNode).c_str());
-            // mvprintw(4, 0, "%s", std::to_string(cursor.indexInNode).c_str());
-            // mvprintw(5, 0, "%s", std::to_string(nodes.size()).c_str());
-            // move(y, x);
-            return;
-        }
+    if (decrementCursor(cursor)) {
+        return;
+    }
+    // Prefer moving the cursor to the end of the previous node instead of the
+    // beginning of the current node.
+    if (cursor.indexInNode == 0 && cursor.indexOfNode > 0) {
         --cursor.indexOfNode;
         cursor.indexInNode = getCursorNode().length;
     }
-    --cursor.indexInNode;
 
     // Update absolute representation.
-    int x = getcurx(stdscr);
-    if (x == 0) {
-        move(getcury(stdscr) - 1, lineLength());
+    if (getcurx(stdscr) == 0) {
+        move(getcury(stdscr) - 1, lineLength() - 1);
     } else {
         move(getcury(stdscr), getcurx(stdscr) - 1);
     }
-    // x = getcurx(stdscr);
-    // int y = getcury(stdscr);
-    // mvprintw(3, 0, "%s", std::to_string(cursor.indexOfNode).c_str());
-    // mvprintw(4, 0, "%s", std::to_string(cursor.indexInNode).c_str());
-    // mvprintw(5, 0, "%s", std::to_string(nodes.size()).c_str());
-    // move(y, x);
 }
 
-void PieceTable::moveRight(bool verbose) {
+void PieceTable::moveRight() {
     // First update internal representation
-    if (cursor.indexInNode == getCursorNode().length) {
-        if (cursor.indexOfNode == nodes.size() - 1) {
-            // int x = getcurx(stdscr);
-            // int y = getcury(stdscr);
-            // mvprintw(3, 0, "%s", std::to_string(cursor.indexOfNode).c_str());
-            // mvprintw(4, 0, "%s", std::to_string(cursor.indexInNode).c_str());
-            // mvprintw(5, 0, "%s", std::to_string(nodes.size()).c_str());
-            // move(y, x);
-            // std::cout << "returned here\n";
-            return;
-        }
-        ++cursor.indexOfNode;
-        cursor.indexInNode = 0;
+    if (incrementCursor(cursor)) {
+        return;
     }
-    // if (cursor.indexOfNode == nodes.size() - 1 && cursor.indexInNode == nodes.back().length - 1) {
-    //     std::cout << "here" << std::endl;
-    //     return;
-    // }
-
-    assert(cursor.indexInNode < getCursorNode().length);
-    char prevChar = getCursorNode().start[cursor.indexInNode];
-    ++cursor.indexInNode;
+    assert(cursor.indexInNode <= getCursorNode().length);
+    char prevChar = getCursorNode().start[cursor.indexInNode - 1];
 
     // Update absolute representation.
     if (prevChar == '\n') {
@@ -280,13 +323,48 @@ void PieceTable::moveRight(bool verbose) {
     } else {
         move(getcury(stdscr), getcurx(stdscr) + 1);
     }
+}
 
-    // int x = getcurx(stdscr);
-    // int y = getcury(stdscr);
-    // mvprintw(3, 0, "%s", std::to_string(cursor.indexOfNode).c_str());
-    // mvprintw(4, 0, "%s", std::to_string(cursor.indexInNode).c_str());
-    // mvprintw(5, 0, "%s", std::to_string(nodes.size()).c_str());
-    // move(y, x);
+void PieceTable::moveUp() {
+    size_t line = lineNumber();
+    if (line == 1) {
+        return;
+    }
+
+    size_t x = getcurx(stdscr);
+    size_t y = getcury(stdscr);
+
+    // Move to one before '\n' on the previous line.
+    decrementCursor(cursor, x + 1);
+    if (x < lineLength()) {
+        // New position will land somewhere in the middle of the line above.
+        decrementCursor(cursor, lineLength() - x - 1);
+        move(y - 1, x);
+    } else {
+        // New position will land at the end of the line above.
+        move(y - 1, lineLength() - 1);
+    }
+}
+
+void PieceTable::moveDown() {
+    size_t line = lineNumber();
+    if (line == numLines()) {
+        return;
+    }
+
+    size_t x = getcurx(stdscr);
+    size_t y = getcury(stdscr);
+
+    // Move to the beginning of the next line.
+    incrementCursor(cursor, lineLength() - x);
+    if (x < lineLength()) {
+        // New position will land somewhere in the middle of the line below.
+        incrementCursor(cursor, x);
+        move(y + 1, x);
+    } else {
+        // New position will land at the beginning of the line below.
+        move(y + 1, 0);
+    }
 }
 
 

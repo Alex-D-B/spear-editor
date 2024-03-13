@@ -44,7 +44,7 @@ public:
     // Move the cursor to the left. Wraps to the previous line if necessary.
     void moveLeft();
     // Move the cursor to the right. Wraps to the next line if necessary.
-    void moveRight(bool verbose = false);
+    void moveRight();
     // Move the cursor up.
     void moveUp();
     // Move the cursor down.
@@ -106,7 +106,19 @@ private:
                 || indexInNode != other.indexInNode;
         }
     };
-
+    // Move the given cursor to the right. Returns true if at the end.
+    bool incrementCursor(Cursor& cur) const;
+    // Move the given cursor to the right by the given amount. Returns true if
+    // it reaches the end.
+    bool incrementCursor(Cursor& cur, size_t amount) const;
+    // Move the given cursor to the left. Returns true if at the beginning.
+    bool decrementCursor(Cursor& cur) const;
+    // Move the given cursor to the left by the given amount. Returns true if it
+    // reaches the beginning.
+    bool decrementCursor(Cursor& cur, size_t amount) const;
+    // Get the character at the given cursor position. '\0' if at the end of the
+    // file. Wraps to the first character of the next node if necessary.
+    char getCharAtCursor(Cursor& cur) const;
 
     // Original file data (heap allocated)
     char* original;
@@ -139,4 +151,8 @@ private:
 
     // Get the length of the current line. '\n' is included in the length.
     size_t lineLength() const;
+    // Get the line number of the current line. (starting at 1)
+    size_t lineNumber() const;
+    // Get the total number of lines in the file.
+    size_t numLines() const;
 };

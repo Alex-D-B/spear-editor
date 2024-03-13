@@ -47,6 +47,12 @@ int main(int argc, char** argv) {
             case KEY_RIGHT:
                 pt.moveRight();
                 break;
+            case KEY_UP:
+                pt.moveUp();
+                break;
+            case KEY_DOWN:
+                pt.moveDown();
+                break;
             case KEY_BACKSPACE:
             case KEY_DC:
             case 127:
@@ -60,9 +66,11 @@ int main(int argc, char** argv) {
             pt.insertChar(inputChar);
         }
 
+        // Store current cursor position.
         int x = getcurx(stdscr);
         int y = getcury(stdscr);
-        mvprintw(5, 0, "%s", pt.toString().c_str());
+        mvprintw(7, 0, "%s", pt.toString().c_str());
+        // Restore old cursor position.
         move(y, x);
 
         // refreshes the screen

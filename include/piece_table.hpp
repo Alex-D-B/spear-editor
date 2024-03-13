@@ -1,7 +1,8 @@
 #pragma once
 
-#include <vector>
+#include <fstream>
 #include <string>
+#include <vector>
 
 class PieceTable final {
 public:
@@ -11,9 +12,9 @@ public:
      * Create a new PieceTable from the given file. Cursor starts at the
      * beginning.
      * 
-     * @param file_path The path to the file to read.
+     * @param filePath The path to the file to read.
      */
-    PieceTable(const char* file_path);
+    PieceTable(const char* filePath);
 
     ~PieceTable();
 
@@ -36,6 +37,9 @@ public:
 
     // Return the entire file as a string.
     std::string toString() const;
+
+    // Saves the current contents to the opened file
+    void saveToFile();
     
     // Move the cursor to the left. Wraps to the previous line if necessary.
     void moveLeft();
@@ -114,6 +118,11 @@ private:
     // The current cursor position, used for insert and delete operations
     Cursor cursor;
     std::vector<Node> nodes;
+
+    // File we are currently editing
+    std::fstream file;
+    // Path to the file we are currently editing
+    std::string filePath;
 
     // Increase the capacity of the added string, and fix all the node pointers,
     // if addedSize == addedCapacity.

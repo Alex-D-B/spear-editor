@@ -4,17 +4,18 @@
 #include <ncurses.h>
 
 constexpr int CTRL_C = 0x3;
+constexpr int CTRL_S = 0x13;
 
 int main(int argc, char** argv) {
     // init screen and sets up screen
     initscr();
 
-    if (argc == 1) {
-        std::cout << "Usage: " << argv[0] << " <filename>\n";
-        exit(1);
-    }
+    // if (argc == 1) {
+    //     std::cout << "Usage: " << argv[0] << " <filename>\n";
+    //     exit(1);
+    // }
 
-    PieceTable pt = PieceTable(argv[1]);
+    PieceTable pt = argc == 1 ? PieceTable() : PieceTable(argv[1]);
 
     // forward input to program, including things like Ctrl+C
     raw();
@@ -51,6 +52,8 @@ int main(int argc, char** argv) {
             case 127:
                 pt.deleteChar();
                 break;
+            case CTRL_S:
+                pt.saveToFile();
         }
 
         if (isalnum(inputChar) || ispunct(inputChar) || isspace(inputChar)) {

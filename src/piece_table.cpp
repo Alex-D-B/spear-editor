@@ -1,21 +1,18 @@
 #include "piece_table.hpp"
 
-#include <fstream>
 #include <assert.h>
 #include <iostream>
 #include <ncurses.h>
 
-PieceTable::PieceTable() {
-    // static_assert(false, "Not implemented");
-    exit(1);
-}
+PieceTable::PieceTable() : PieceTable("Untitled") {}
 
-PieceTable::PieceTable(const char* file_path) : cursor{0, 0} {
+constexpr std::ios::openmode baseFileModes = std::ios::in | std::ios::out | std::ios::ate;
+
+PieceTable::PieceTable(const char* filePath) : cursor{0, 0}, filePath {filePath} {
     // Read the file into the original buffer
-    std::ifstream file(file_path, std::ios::in);
-    if (!file.is_open()) { std::cerr << "Error opening file\n"; exit(1); }
+    file = std::fstream(filePath, baseFileModes | std::ios::app);
+    assert(file.is_open());
 
-    file.seekg(0, std::ios::end); // check if correct
     auto size = file.tellg();
     // +1 for null terminator
     original = (char*) malloc(static_cast<size_t>(size) + 1);
@@ -49,6 +46,7 @@ PieceTable::PieceTable(const char* file_path) : cursor{0, 0} {
 PieceTable::~PieceTable() {
     free(original);
     free(added);
+    file.close();
 }
 
 void PieceTable::insertChar(char c) {
@@ -153,6 +151,13 @@ std::string PieceTable::toString() const {
         result.append(node.start, node.length);
     }
     return result;   
+}
+
+void PieceTable::saveToFile() {
+    file.close();
+    file.open(filePath, baseFileModes | std::ios::trunc);
+    assert(file.is_open());
+    file << toString();
 }
 
 void PieceTable::reallocAddedIfNeeded() {

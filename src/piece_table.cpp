@@ -158,6 +158,7 @@ void PieceTable::saveToFile() {
     file.open(filePath, baseFileModes | std::ios::trunc);
     assert(file.is_open());
     file << toString();
+    file.flush();
 }
 
 bool PieceTable::incrementCursor(Cursor& cur) const {

@@ -40,6 +40,8 @@ public:
 
     // Saves the current contents to the opened file
     void saveToFile();
+    // Get the path of the file.
+    std::string_view getFilePath() const { return filePath; }
     
     // Move the cursor to the left. Wraps to the previous line if necessary.
     void moveLeft();

@@ -4,11 +4,11 @@
 #include <iostream>
 #include <ncurses.h>
 
-PieceTable::PieceTable() : PieceTable("Untitled") {}
+PieceTable::PieceTable(WINDOW* win) : PieceTable(win, "Untitled") {}
 
 constexpr std::ios::openmode baseFileModes = std::ios::in | std::ios::out | std::ios::ate;
 
-PieceTable::PieceTable(const char* filePath) : cursor{0, 0}, filePath {filePath} {
+PieceTable::PieceTable(WINDOW* win, const char* filePath) : cursor {0, 0}, filePath {filePath}, win {win} {
     // Read the file into the original buffer
     file = std::fstream(filePath, baseFileModes | std::ios::app);
     assert(file.is_open());
@@ -89,7 +89,7 @@ void PieceTable::insertChar(char c) {
     ++getCursorNode().length;
 
     // Update the terminal display
-    insch(c);
+    winsch(win, c);
     // Move cursor to the right
     moveRight();
 }
@@ -131,8 +131,8 @@ void PieceTable::deleteChar() {
     }
 
     // Update the terminal display
-    move(getcury(stdscr), getcurx(stdscr) - 1);
-    delch();
+    wmove(win, getcury(win), getcurx(win) - 1);
+    wdelch(win);
 }
 
 void PieceTable::setCursor(size_t index) {
@@ -303,10 +303,10 @@ void PieceTable::moveLeft() {
     }
 
     // Update absolute representation.
-    if (getcurx(stdscr) == 0) {
-        move(getcury(stdscr) - 1, lineLength() - 1);
+    if (getcurx(win) == 0) {
+        wmove(win, getcury(win) - 1, lineLength() - 1);
     } else {
-        move(getcury(stdscr), getcurx(stdscr) - 1);
+        wmove(win, getcury(win), getcurx(win) - 1);
     }
 }
 
@@ -320,9 +320,10 @@ void PieceTable::moveRight() {
 
     // Update absolute representation.
     if (prevChar == '\n') {
-        move(getcury(stdscr) + 1, 0);
+        wmove(win, getcury(win) + 1, 0);
     } else {
-        move(getcury(stdscr), getcurx(stdscr) + 1);
+        wmove(win, getcury(win), getcurx(win) + 1);
+        move(getcury(win), getcurx(win));
     }
 }
 
@@ -332,18 +333,18 @@ void PieceTable::moveUp() {
         return;
     }
 
-    size_t x = getcurx(stdscr);
-    size_t y = getcury(stdscr);
+    size_t x = getcurx(win);
+    size_t y = getcury(win);
 
     // Move to one before '\n' on the previous line.
     decrementCursor(cursor, x + 1);
     if (x < lineLength()) {
         // New position will land somewhere in the middle of the line above.
         decrementCursor(cursor, lineLength() - x - 1);
-        move(y - 1, x);
+        wmove(win, y - 1, x);
     } else {
         // New position will land at the end of the line above.
-        move(y - 1, lineLength() - 1);
+        wmove(win, y - 1, lineLength() - 1);
     }
 }
 
@@ -353,18 +354,18 @@ void PieceTable::moveDown() {
         return;
     }
 
-    size_t x = getcurx(stdscr);
-    size_t y = getcury(stdscr);
+    size_t x = getcurx(win);
+    size_t y = getcury(win);
 
     // Move to the beginning of the next line.
     incrementCursor(cursor, lineLength() - x);
     if (x < lineLength()) {
         // New position will land somewhere in the middle of the line below.
         incrementCursor(cursor, x);
-        move(y + 1, x);
+        wmove(win, y + 1, x);
     } else {
         // New position will land at the beginning of the line below.
-        move(y + 1, 0);
+        wmove(win, y + 1, 0);
     }
 }
 

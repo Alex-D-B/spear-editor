@@ -22,8 +22,11 @@ int main(int argc, char** argv) {
     init_color(COLOR_YELLOW, 500, 500, 500);
     init_pair(unsavedColor, COLOR_RED, COLOR_YELLOW);
     init_pair(savedColor, COLOR_GREEN, COLOR_YELLOW);
+    int maxX, maxY;
+    getmaxyx(stdscr, maxY, maxX);
+    WINDOW* pad = newpad(maxY, maxX);
 
-    PieceTable pt = argc == 1 ? PieceTable() : PieceTable(argv[1]);
+    PieceTable pt = argc == 1 ? PieceTable(pad) : PieceTable(pad, argv[1]);
 
     // forward input to program, including things like Ctrl+C
     raw();
@@ -32,44 +35,42 @@ int main(int argc, char** argv) {
     noecho();
     
     // enable arrow keys to be read
-    keypad(stdscr, true);
+    keypad(pad, true);
 
     // print to screen
-    printw("%s", pt.toString().c_str());
+    wprintw(pad, "%s", pt.toString().c_str());
 
     // start the cursor at the beginning of the file
-    move(0, 0);
+    wmove(pad, 0, 0);
 
     bool unsavedChanges = false;
 
     while (true) {
         // Store current cursor position.
-        int x = getcurx(stdscr);
-        int y = getcury(stdscr);
-        // mvprintw(7, 0, "%s", pt.toString().c_str());
+        int x = getcurx(pad);
+        int y = getcury(pad);
+        // mvwprintw(pad, 7, 0, "%s", pt.toString().c_str());
         int xMax, yMax; 
-        getmaxyx(stdscr, yMax, xMax);
+        getmaxyx(pad, yMax, xMax);
         chtype colorPair = COLOR_PAIR(unsavedChanges ? unsavedColor : savedColor);
-        attron(colorPair);
-        mvprintw(yMax - 1, 0, "%s", unsavedChanges ? " Unsaved changes to " : " Saved ");
-        printw("%s", pt.getFilePath());
-        printw(" ");
-        attroff(colorPair);
-        clrtoeol();
+        wattron(pad, colorPair);
+        mvwprintw(pad, yMax - 1, 0, " %s %s ", unsavedChanges ? "Unsaved changes to" : "Saved", pt.getFilePath());
+        wattroff(pad, colorPair);
+        wclrtoeol(pad);
         // Restore old cursor position.
-        move(y, x);
+        wmove(pad, y, x);
 
-        // refreshes the screen
-        refresh();
+        // // refreshes the screen
+        prefresh(pad, 0, 0, 0, 0, yMax - 1, xMax - 1);
 
         // read in a character at a time
-        int inputChar = wgetch(stdscr);
+        int inputChar = wgetch(pad);
 
         if (inputChar == CTRL_C) {
             break;
         }
 
-        unsavedChanges = true;
+        // unsavedChanges = true;
         switch (inputChar) {
             case KEY_LEFT:
                 pt.moveLeft();
@@ -90,7 +91,7 @@ int main(int argc, char** argv) {
                 break;
             case CTRL_S:
                 pt.saveToFile();
-                unsavedChanges = false;
+                // unsavedChanges = false;
         }
 
         if (isalnum(inputChar) || ispunct(inputChar) || isspace(inputChar)) {
@@ -98,6 +99,7 @@ int main(int argc, char** argv) {
         }
     }
 
+    delwin(pad);
     // deallocates memory and ends ncurses
     endwin();
     return 0;

@@ -8,16 +8,16 @@
 
 int main() {
     // Add tests here for easier debugging.
-    PieceTable pt("../tests/test2.txt");
+    // PieceTable pt("../tests/test2.txt");
 
-    std::cout << pt.toString() << std::endl;
+    // std::cout << pt.toString() << std::endl;
 
-    pt.moveRight();
-    pt.moveRight();
-    pt.insertChar('a');
-    pt.moveLeft();
-    pt.moveLeft();
-    pt.insertChar('a');
+    // pt.moveRight();
+    // pt.moveRight();
+    // pt.insertChar('a');
+    // pt.moveLeft();
+    // pt.moveLeft();
+    // pt.insertChar('a');
 
-    std::cout << pt.toString() << std::endl;
+    // std::cout << pt.toString() << std::endl;
 }

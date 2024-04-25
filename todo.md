@@ -4,6 +4,7 @@
 2. Handle scrolling
 3. Handle line wrapping
 4. Line numbers
+5. Fix bug with entering a newline in the middle of a file
 
 # Things TODO over the summer:
 

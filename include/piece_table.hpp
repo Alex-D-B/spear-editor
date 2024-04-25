@@ -4,9 +4,12 @@
 #include <string>
 #include <vector>
 
+#include <ncurses.h>
+
 class PieceTable final {
 public:
-    PieceTable();
+    PieceTable() = delete;
+    PieceTable(WINDOW* win);
 
     /**
      * Create a new PieceTable from the given file. Cursor starts at the
@@ -14,7 +17,7 @@ public:
      * 
      * @param filePath The path to the file to read.
      */
-    PieceTable(const char* filePath);
+    PieceTable(WINDOW* win, const char* filePath);
 
     ~PieceTable();
 
@@ -157,4 +160,6 @@ private:
     size_t lineNumber() const;
     // Get the total number of lines in the file.
     size_t numLines() const;
+
+    WINDOW* win;
 };
